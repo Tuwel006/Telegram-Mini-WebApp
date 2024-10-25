@@ -1,0 +1,9 @@
+.hidden-after-5 {
+    animation: hide 5s forwards;
+  }
+  
+  @keyframes hide {
+    to {
+      visibility: hidden;
+    }
+  }
