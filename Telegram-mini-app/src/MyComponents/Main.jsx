@@ -97,12 +97,12 @@ export default function Main() {
 ):<></>}
 {user?( 
       <div className="text-center bg-gray-800 text-white p-3 pt-0 rounded-md shadow-lg">
-      <h1 className="text-2xl font-bold mb-3">Air Drop will Open After....</h1>
-      <p className="text-2xl text-blue-500">{timeLeft !== null ? formatTime(timeLeft) : 'Loading...'}</p>
+      <h1 className="text-2xl font-bold mb-3">Air Drop will Open Very Soon..</h1>
     </div>
 ):<></> }
     {user?(<FarmingBox/>):<></>}
     </div>
     </UserProvider>
+    
   )
 }

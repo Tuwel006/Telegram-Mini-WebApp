@@ -6,6 +6,7 @@ import openingLock from '../icon/openingLock.png'
 import closeLock from '../icon/closeLock.png'
 import dollar_sign from '../icon/dolar_sign.png'
 import { UserContext, UserProvider } from '../UserContext';
+import { Link } from 'react-router-dom';
 
 export default function Level() {
   const {updateBalance, updateLevelCheck} = useContext(UserContext);
@@ -13,8 +14,8 @@ export default function Level() {
     const [dollarLeval, setDollarLevel] = useState(0);
     let value;
     const handleLevelClaim = (idx) => {
-     let val = (idx+1)*0.01;
-            val = parseFloat(val.toFixed(2));
+     const val = (idx+1)*0.01;
+            //val = parseFloat(val.toFixed(2));
       if(user.levelReward[idx]) {
         updateBalance(val);
       }
@@ -48,6 +49,7 @@ export default function Level() {
             </button>
           ))}
         </div>
+        <Link className='border-2 border-white h-5 w-5 bg-blue rounded-xl text-white' to={'/game'}>GAME</Link>
       </main>
     </UserProvider>
   )

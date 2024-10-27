@@ -15,6 +15,7 @@ export const UserProvider = ({ children }) => { // Fix: Destructure children cor
   const [levelPoints, setLevelPoints] = useState(0);
   const [maxPoints, setMaxPoints] = useState(100);
   const [levelReward, setLevelReward] = useState([]);
+  const [timeLeft, setTimeLeft] = useState(null);
 
   // Retrieve telegramID from the URL parameters
   const telegramID = Cookies.get('authToken') || new URLSearchParams(window.location.search).get('telegramID');
@@ -40,6 +41,8 @@ export const UserProvider = ({ children }) => { // Fix: Destructure children cor
     const levelPointsRef = ref(database, `UserDb/${telegramID}/levelPoints`);
     const maxPointsRef = ref(database, `UserDb/${telegramID}/maxPoints`);
     const levelRewardRef = ref(database, `UserDb/${telegramID}/levelReward`);
+    const timeLeftRef = ref(database, `UserDb/${telegramID}/timeLeft`);
+
 
 
     // Set up real-time listeners
@@ -68,6 +71,9 @@ export const UserProvider = ({ children }) => { // Fix: Destructure children cor
     const unsubscribeLevelReward = onValue(levelRewardRef, (snapshot) => {
       setLevelReward(snapshot.val() || 0);
     });
+    const unsubscribeTimeLeft = onValue(timeLeftRef, (snapshot) => {
+      setTimeLeft(snapshot.val() || null);
+    });
 
     // Cleanup listeners on unmount
     return () => {
@@ -78,6 +84,7 @@ export const UserProvider = ({ children }) => { // Fix: Destructure children cor
       unsubscribeLevelPoints();
       unsubscribemaxPoints();
       unsubscribeLevelReward();
+      unsubscribeTimeLeft();
     };
   }, [telegramID]); // Add telegramID to the dependency array
   
@@ -135,22 +142,8 @@ export const UserProvider = ({ children }) => { // Fix: Destructure children cor
   //   runTransaction(nameRef, async (name) => {
   //     return (await get(nameRef).val())
   // })
-    
   };
 
-  const updateTimeLeft = () => {
-    const timeLeftRef = ref(database, `UserDb/${telegramID}/timeLeft`);
-
-    const interValTime = setInterval(()=>{
-      runTransaction(timeLeftRef, (currTimeLeft) => {
-        if(currTimeLeft<=1) {
-          clearInterval(interValTime);
-        }
-        return currTimeLeft-1000;
-      })
-    },1000);
-
-  }
 
   const contextValue = {
     coin,
@@ -160,10 +153,10 @@ export const UserProvider = ({ children }) => { // Fix: Destructure children cor
     levelPoints,
     maxPoints,
     levelReward,
+    telegramID,
     updateCoins,
     updateBalance,
     updateLevelCheck,
-    updateTimeLeft,
   };
 
   return (

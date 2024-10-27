@@ -327,6 +327,24 @@ textarea {
   /* 3 */
 }
 
+
+@keyframes rain {
+  0% {
+    top: -10%;
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
+}
+
+.animate-rain {
+  animation: rain 3s linear infinite;
+}
+
+
+
 /*
 Remove the inheritance of text transform in Edge and Firefox.
 */

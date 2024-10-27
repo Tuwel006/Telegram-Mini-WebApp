@@ -1,0 +1,20 @@
+[
+  {
+    "userName": "Sabbir null",
+    "telegramID": "100",
+    "timestamp45Day": {
+      "days": 44,
+      "hours": 17,
+      "minutes": 57,
+      "seconds": 41
+    },
+    "timestamp8Hour": {
+      "days": 0,
+      "hours": 6,
+      "minutes": 42,
+      "seconds": 24
+    },
+    "claimStarted": true,
+    "claimPoint": 21.576388888886097
+  }
+]

@@ -5,3 +5,26 @@
 body {
     font-family: sans-serif;
 }
+@layer utilities {
+    @keyframes fall {
+      0% {
+        top: -10%;
+      }
+      100% {
+        top: 100%;
+      }
+    }
+  }
+
+/* Add this to your global CSS file */
+@keyframes moveUp {
+    0% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-80px); /* Adjust as needed */
+    }
+  }
+  

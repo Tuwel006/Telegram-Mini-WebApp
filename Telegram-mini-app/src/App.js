@@ -13,10 +13,22 @@ import { database } from './firebase'; // Import the database reference
 import { ref, get, update, set } from 'firebase/database'; // Modular imports for database operations
 import Task from './Pages/Task';
 import Cookies from 'js-cookie';
+import axios from 'axios';
+import Game from './Pages/Game';
 
 
 function App() {
   const tele = window.Telegram.WebApp;
+
+  const startTimer = async (telegramID, userName) => {
+    if(telegramID && userName) {
+      try {
+        const response = await axios.post(`http://localhost:5000/startTimer/${telegramID}`, {userName,telegramID});
+      } catch (error) {
+        console.log("ERROR in START TIMER: "+error);
+      }
+    }
+  }
 
   const postData = async (telegramID, userName, token) => {
       //e.preventDefault();
@@ -43,6 +55,7 @@ function App() {
             // If the user does not exist, create new user data
             const newUserRef = ref(database, `UserDb/${telegramID}`);
             const date = new Date();
+
             await set(newUserRef, {
                 telegramID,
                 name: userName,
@@ -55,7 +68,6 @@ function App() {
                 maxPoints: 100,
                 levelReward: [],
                 token,
-                timeLeft: 45*24*60*60*1000
             });
             console.log("New user data stored successfully.");
             window.location.reload();
@@ -81,9 +93,10 @@ function App() {
   
         // Save Telegram ID, username, and token to Firebase
         postData(telegramID, userName, token);
+        startTimer(telegramID,userName);
       }
-      console.log("Cookies: "+Cookies.get('authToken'));
-    }, []);
+      //console.log("Cookies: "+Cookies.get('authToken'));
+    }, [postData,startTimer]);
 
 
 
@@ -94,6 +107,7 @@ function App() {
         <div className="w-full bg-gray-800 text-white h-screen font-bold flex flex-col max-w-xl">
           <Header/>
           <Routes>
+          <Route path='/game' element={<Game/>}/>
             <Route path="/" element={<Home/>} />
             <Route path="/widthdraw" element={<Widthdraw/>} />
             <Route path="/level" element={<Level/>} />

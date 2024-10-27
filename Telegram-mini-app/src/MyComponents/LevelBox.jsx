@@ -32,6 +32,7 @@ function LevelBox() {
       >
         Add Points
       </button>
+      <Link className='border-2 bg-blue rounded-xl text-white' to={'/game'}>GAME</Link>
     </div>
   );
 }

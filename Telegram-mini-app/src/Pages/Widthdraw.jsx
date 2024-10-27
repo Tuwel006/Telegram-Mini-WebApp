@@ -1,22 +1,30 @@
-import React, {useContext} from 'react'
+import React, {useContext, useEffect, useState} from 'react'
 import Footer from '../MyComponents/Footer'
 import Main from '../MyComponents/Main'
 import closeLock from '../icon/closeLock.png'
-import { UserContext, UserProvider } from '../UserContext.js'
+import { UserContext, UserProvider } from '../UserContext.js';
+import axios from 'axios';
 
 
 export default function Widthdraw() {
   const user = useContext(UserContext);
-  //const time = user.timeLeft;
-  const formatTime = (time) => {
-    const days = Math.floor(time / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((time % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((time % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((time % (1000 * 60)) / 1000);
+  const telegramID = user.telegramID;
 
-    return `${days}D ${hours}H ${minutes}M ${seconds}S`;
-  };
-  formatTime(user.timeLeft);
+  const [time, setTime] = useState('');
+
+  //const time = user.timeLeft;
+const getTime = async () => {
+  try {
+    //console.log("TELEGRAM ID CHECK: "+telegramID);
+    
+    const response = await axios.get(`http://localhost:5000/timeLeft/${telegramID}`,{telegramID});
+  const userTime = response.data
+  setTime(userTime);
+  } catch (error) {
+    console.log(error);
+  }
+}
+getTime();
 
   return (
     <UserProvider>
@@ -24,16 +32,17 @@ export default function Widthdraw() {
           <div className='flex flex-col items-center bg-slate-700 py-4 rounded-3xl w-full'>
           <div className='flex shadow-3xl mb-4'>
             <p className='text-yellow-500 text-6xl'>$</p>
-            <p className='text-6xl text-yellow-500'>{user.balance}</p>
+            <p className='text-6xl text-yellow-500'>{user.balance.toFixed(2)}</p>
           </div>
-          <button className='flex h-10 px-4 mt-2 overlay rounded-lg border-3 bg-blue-600 text-yellow-500 o-5 text-center text-xl'>
+          <button className='flex items-center h-10 px-4 mt-2 overlay rounded-lg border-3 bg-blue-600 text-yellow-500 o-5 text-center text-xl'>
             Widthdraw
-            <img alt='closeLock' src={closeLock} className='' style={{height: '35px', width: '40px',position:'relative',top:'-3px',left: '0px'}}></img>
+            <img alt='closeLock' src={closeLock} className='' style={{height: '35px', width: '40px',position:'relative',top:'0px',left: '0px'}}></img>
           </button>
           </div>
+          <h1 className='text-2xl mt-4'>{String(time.days).padStart(2,'0')} : {String(time.hours).padStart(2,'0')} : {String(time.minutes).padStart(2,'0')} : {String(time.seconds).padStart(2,'0')}</h1>
+
         </div>
         <div>
-      <h2>Time Remaining: {formatTime(user.timeLeft)}</h2>
     </div>
         </UserProvider>
   )
