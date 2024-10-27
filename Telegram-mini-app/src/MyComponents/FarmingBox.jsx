@@ -57,7 +57,7 @@ function FarmingBox({onClaim, levelUpdate}) {
   
     const handleClick = () => {
        startFarming();
-       if(!farmingStatus) {
+       if(farmingStatus===false) {
         window.location.reload();
        }     
     };
