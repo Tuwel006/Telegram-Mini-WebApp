@@ -5,8 +5,8 @@
     "timestamp45Day": {
       "days": 44,
       "hours": 17,
-      "minutes": 43,
-      "seconds": 17
+      "minutes": 36,
+      "seconds": 52
     },
     "timestamp8Hour": {
       "days": 0,
@@ -15,6 +15,6 @@
       "seconds": 24
     },
     "claimStarted": true,
-    "claimPoint": 23.076388888885756
+    "claimPoint": 23.74479166666338
   }
 ]
