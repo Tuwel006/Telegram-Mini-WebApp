@@ -2,6 +2,7 @@
 import React, { createContext, useEffect, useState } from 'react';
 import { database } from './firebase'; // Import Firebase configuration
 import { ref, onValue, runTransaction, get, set, push, update } from 'firebase/database';
+import Cookies from 'js-cookie'
 
 // Create User Context
 export const UserContext = createContext();
@@ -9,19 +10,27 @@ export const UserContext = createContext();
 export const UserProvider = ({ children }) => { // Fix: Destructure children correctly
   const [coin, setCoins] = useState(0);
   const [balance, setBalance] = useState(0);
-  const [name, setName] = useState("Sabbir Ali");
+  const [name, setName] = useState("");
   const [level, setLevel] = useState(1);
   const [levelPoints, setLevelPoints] = useState(0);
   const [maxPoints, setMaxPoints] = useState(100);
   const [levelReward, setLevelReward] = useState([]);
 
   // Retrieve telegramID from the URL parameters
-  const telegramID = new URLSearchParams(window.location.search).get('telegramID') || 'Unknown User';
+  const telegramID = Cookies.get('authToken') || new URLSearchParams(window.location.search).get('telegramID');
 
   useEffect(() => {
+
+
     if (!telegramID) {
       return;
     } // Ensure telegramID is available
+
+    if(!Cookies.get('authToken')){
+      if(telegramID){
+        Cookies.set('authToken', telegramID, { expires: 45, sameSite: 'None', secure: true });
+      }
+    }
 
     const userRef = ref(database, `UserDb/${telegramID}`);
     const coinRef = ref(database, `UserDb/${telegramID}/coin`);
@@ -43,7 +52,7 @@ export const UserProvider = ({ children }) => { // Fix: Destructure children cor
     });
 
     const unsubscribeName = onValue(nameRef, (snapshot) => {
-      setName(snapshot.val() || "User");
+      setName(snapshot.val() || "");
     });
 
     const unsubscribeLevel = onValue(levelRef, (snapshot) => {
@@ -129,6 +138,20 @@ export const UserProvider = ({ children }) => { // Fix: Destructure children cor
     
   };
 
+  const updateTimeLeft = () => {
+    const timeLeftRef = ref(database, `UserDb/${telegramID}/timeLeft`);
+
+    const interValTime = setInterval(()=>{
+      runTransaction(timeLeftRef, (currTimeLeft) => {
+        if(currTimeLeft<=1) {
+          clearInterval(interValTime);
+        }
+        return currTimeLeft-1000;
+      })
+    },1000);
+
+  }
+
   const contextValue = {
     coin,
     balance,
@@ -140,6 +163,7 @@ export const UserProvider = ({ children }) => { // Fix: Destructure children cor
     updateCoins,
     updateBalance,
     updateLevelCheck,
+    updateTimeLeft,
   };
 
   return (

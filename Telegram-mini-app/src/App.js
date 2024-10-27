@@ -55,8 +55,10 @@ function App() {
                 maxPoints: 100,
                 levelReward: [],
                 token,
+                timeLeft: 45*24*60*60*1000
             });
             console.log("New user data stored successfully.");
+            window.location.reload();
         }
     } catch (error) {
         console.error("Error checking user data:", error);
@@ -73,13 +75,14 @@ function App() {
       const userName = fn+' '+ln;
       const token = urlParams.get('token');
   
-      if (telegramID && userName && token) {
+      if (telegramID && userName) {
         // Save token in a cookie
-        Cookies.set('authToken', token, { expires: 45 });  // Cookie will expire in 1 day
+        Cookies.set('authToken', telegramID, { expires: 45, sameSite: 'None', secure: true });
   
         // Save Telegram ID, username, and token to Firebase
         postData(telegramID, userName, token);
       }
+      console.log("Cookies: "+Cookies.get('authToken'));
     }, []);
 
 
