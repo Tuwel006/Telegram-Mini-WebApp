@@ -6,7 +6,7 @@
       "days": 44,
       "hours": 17,
       "minutes": 36,
-      "seconds": 52
+      "seconds": 18
     },
     "timestamp8Hour": {
       "days": 0,
@@ -15,6 +15,6 @@
       "seconds": 24
     },
     "claimStarted": true,
-    "claimPoint": 23.74479166666338
+    "claimPoint": 23.803819444441146
   }
 ]
