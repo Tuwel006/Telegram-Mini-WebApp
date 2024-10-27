@@ -4,9 +4,9 @@
     "telegramID": "100",
     "timestamp45Day": {
       "days": 44,
-      "hours": 17,
-      "minutes": 21,
-      "seconds": 22
+      "hours": 16,
+      "minutes": 57,
+      "seconds": 59
     },
     "timestamp8Hour": {
       "days": 0,
@@ -15,6 +15,5 @@
       "seconds": 24
     },
     "claimStarted": true,
-    "claimPoint": 25.359374999996348
+    "claimPoint": 27.795138888884683
   }
-]

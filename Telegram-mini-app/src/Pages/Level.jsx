@@ -49,7 +49,6 @@ export default function Level() {
             </button>
           ))}
         </div>
-        <Link className='border-2 border-white h-5 w-5 bg-blue rounded-xl text-white' to={'/game'}>GAME</Link>
       </main>
     </UserProvider>
   )
