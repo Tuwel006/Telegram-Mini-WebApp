@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import './components.css';
 import { UserContext, UserProvider } from '../UserContext';
 import axios from 'axios';
@@ -9,11 +9,8 @@ import { Link } from 'react-router-dom';
 function FarmingBox({onClaim, levelUpdate}) {
     const [points, setPoints] = useState(0); //useState(1200);
     const [totalPoints, setTotalPoints] = useState(0);
-    const [farming, setFarming] = useState(true);
-    const [claimed, setClaimed] = useState(false);
     const [loading, setLoading] = useState(false); // New loading state
     const duration = 50;//60*60*8+1200; // 180 minutes in seconds
-    const increment = 1;
     const [farmingPoints, setFarmingpoints] = useState(0);
     const [farmingStatus, setFarmingStatus] = useState(null);
 
@@ -22,7 +19,7 @@ function FarmingBox({onClaim, levelUpdate}) {
     const startFarming = async () => {
       if(telegramID) {
         try {
-          await axios.post(`http://localhost:5000/startClaim`,{telegramID});
+          await axios.post(`${process.env.REACT_APP_SERVER_URL}/startClaim`,{telegramID});
         } catch (error) {
           console.log(error);
         }
@@ -33,7 +30,7 @@ function FarmingBox({onClaim, levelUpdate}) {
      // console.log("Farming stop Called: "+telegramID);
       if(telegramID) {
         try {
-          await axios.post(`http://localhost:5000/stopClaim`,{telegramID});
+          await axios.post(`${process.env.REACT_APP_SERVER_URL}/stopClaim`,{telegramID});
         } catch (error) {
           console.log(error);
         }
@@ -43,7 +40,7 @@ function FarmingBox({onClaim, levelUpdate}) {
     const getFarmingPoints = async ()=> {
         try {
           //console.log("Get poin running: "+farmingPoints+"  React Fault: "+farmingPoints+" FARMING STATUS: "+farmingStatus);
-          const res = await axios.get(`http://localhost:5000/liveFarmingPoints/${telegramID}`,{telegramID});
+          const res = await axios.get(`${process.env.REACT_APP_SERVER_URL}/liveFarmingPoints/${telegramID}`,{telegramID});
           const {newFP, newFarmingStatus} = res.data;
           setFarmingpoints(newFP);
           setFarmingStatus(newFarmingStatus);
@@ -70,13 +67,11 @@ function FarmingBox({onClaim, levelUpdate}) {
       setLoading(true); // Start loading
       setTotalPoints(totalPoints + points);
       
-      setClaimed(false); // Reset claimed state for new claim
   
       // Simulate loading for 5 seconds
       setTimeout(() => {
         setLoading(false); // End loading
-        setClaimed(true); // Indicate that points have been claimed
-        setFarming(true); // Reset farming state to allow new farming
+       // Reset farming state to allow new farming
         if(farmingStatus){
           updateCoins(farmingPoints);
         }
@@ -133,12 +128,7 @@ function FarmingBox({onClaim, levelUpdate}) {
       </div>
       
     </div>
-    <div className="flex justify-center  mt-4">
-        <p className="text-xl font-bold">
-          {farmingPoints.toFixed(3)} / {20}
-        </p>
-      </div>
-      <Link className='border-2 border-white h-5 w-5 bg-blue-800 p-1 rounded-xl text-white' to={'/game'}>GAME</Link>
+      <Link className='m-2 mx-5 border-2 border-white h-5 w-5 bg-blue-800 p-1 rounded-xl text-white' to={'/game'}>GAME</Link>
     </UserProvider>
   );
 }

@@ -6,11 +6,11 @@ import Guide from './Pages/Guide';
 import Airdrop from './Pages/Airdrop';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { UserProvider } from './UserContext';
-import React, {useEffect} from 'react';
+import React, {useCallback, useEffect} from 'react';
 import Header from './MyComponents/Header';
 import Footer from './MyComponents/Footer';
 import { database } from './firebase'; // Import the database reference
-import { ref, get, update, set } from 'firebase/database'; // Modular imports for database operations
+import { ref, get, set } from 'firebase/database'; // Modular imports for database operations
 import Task from './Pages/Task';
 import Cookies from 'js-cookie';
 import axios from 'axios';
@@ -18,19 +18,18 @@ import Game from './Pages/Game';
 
 
 function App() {
-  const tele = window.Telegram.WebApp;
 
-  const startTimer = async (telegramID, userName) => {
+  const startTimer = useCallback( async (telegramID, userName) => {
     if(telegramID && userName) {
       try {
-        const response = await axios.post(`http://localhost:5000/startTimer/${telegramID}`, {userName,telegramID});
+        await axios.post(`${process.env.REACT_APP_SERVER_URL}/startTimer/${telegramID}`, {userName,telegramID});
       } catch (error) {
         console.log("ERROR in START TIMER: "+error);
       }
     }
-  }
+  },[])
 
-  const postData = async (telegramID, userName, token) => {
+  const postData =useCallback( async (telegramID, userName, token) => {
       //e.preventDefault();
       const userRef = ref(database, `UserDb`);
       //const existingUserQuery = query(userRef, child(telegramID));
@@ -76,7 +75,7 @@ function App() {
         console.error("Error checking user data:", error);
     }
         
-    }
+    },[])
 
     useEffect(() => {
       // Get URL parameters

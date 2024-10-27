@@ -1,6 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react'
-import Footer from '../MyComponents/Footer'
-import Main from '../MyComponents/Main'
+import React, {useContext, useState} from 'react'
 import closeLock from '../icon/closeLock.png'
 import { UserContext, UserProvider } from '../UserContext.js';
 import axios from 'axios';
@@ -17,7 +15,7 @@ const getTime = async () => {
   try {
     //console.log("TELEGRAM ID CHECK: "+telegramID);
     
-    const response = await axios.get(`http://localhost:5000/timeLeft/${telegramID}`,{telegramID});
+    const response = await axios.get(`${process.env.REACT_APP_SERVER_URL}/timeLeft/${telegramID}`,{telegramID});
   const userTime = response.data
   setTime(userTime);
   } catch (error) {
