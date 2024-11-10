@@ -1,6 +1,5 @@
 import React, {useContext} from 'react'
 import PropTypes from 'prop-types'
-import profile_logo from '../icon/profile_logo.png';
 import user_logo from '../icon/user_logo.webp';
 import dollar_sign from '../icon/dolar_sign.png';
 import { UserProvider, UserContext } from '../UserContext';

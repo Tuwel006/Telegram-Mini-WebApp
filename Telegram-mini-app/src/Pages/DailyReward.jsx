@@ -3,7 +3,7 @@ import dolla_coin from '../icon/dollar-coin.png';
 import { UserContext } from '../UserContext';
 
 export default function DailyReward() {
-    const { continueDay, checkIn } = useContext(UserContext);
+    const { continueDay } = useContext(UserContext);
     const handleRewardOpen = (index) => {
         
     }

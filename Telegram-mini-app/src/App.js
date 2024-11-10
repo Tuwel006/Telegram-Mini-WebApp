@@ -5,18 +5,15 @@ import Level from './Pages/Level';
 import Guide from './Pages/Guide';
 import Referral from './Pages/Referral';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { UserContext, UserProvider } from './UserContext';
-import React, {useCallback, useContext, useEffect, useState} from 'react';
+import { UserProvider } from './UserContext';
+import React, {useCallback, useEffect, useState} from 'react';
 import Header from './MyComponents/Header';
 import Footer from './MyComponents/Footer';
-import { database } from './firebase'; // Import the database reference
-import { ref, get, set } from 'firebase/database'; // Modular imports for database operations
 import Task from './Pages/Task';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 import Game from './Pages/Game';
 import DailyReward from './Pages/DailyReward';
-import Overlay from './MyComponents/Overlay';
 
 
 function App() {

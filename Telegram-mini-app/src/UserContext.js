@@ -1,7 +1,7 @@
 // UserContext.js
 import React, { createContext, useEffect, useState } from 'react';
 import { database } from './firebase'; // Import Firebase configuration
-import { ref, onValue, runTransaction, get, set, push, update } from 'firebase/database';
+import { ref, onValue, runTransaction, get, set } from 'firebase/database';
 import Cookies from 'js-cookie'
 
 // Create User Context
@@ -15,7 +15,7 @@ export const UserProvider = ({ children }) => { // Fix: Destructure children cor
   const [levelPoints, setLevelPoints] = useState(0);
   const [maxPoints, setMaxPoints] = useState(100);
   const [levelReward, setLevelReward] = useState([]);
-  const [timeLeft, setTimeLeft] = useState(null);
+  //const [timeLeft, setTimeLeft] = useState(null);
   const [farmingPoint, setFarmingPoint] = useState(0);
   const [isFarming, setIsFarming] = useState(null);
   const [checkIn, setCheckIn] = useState('');
@@ -37,7 +37,7 @@ export const UserProvider = ({ children }) => { // Fix: Destructure children cor
       }
     }
 
-    const userRef = ref(database, `UserDb/${telegramID}`);
+    //const userRef = ref(database, `UserDb/${telegramID}`);
     const coinRef = ref(database, `UserDb/${telegramID}/coin`);
     const balanceRef = ref(database, `UserDb/${telegramID}/balance`);
     const nameRef = ref(database, `UserDb/${telegramID}/name`);
@@ -45,7 +45,7 @@ export const UserProvider = ({ children }) => { // Fix: Destructure children cor
     const levelPointsRef = ref(database, `UserDb/${telegramID}/levelPoints`);
     const maxPointsRef = ref(database, `UserDb/${telegramID}/maxPoints`);
     const levelRewardRef = ref(database, `UserDb/${telegramID}/levelReward`);
-    const timeLeftRef = ref(database, `UserDb/${telegramID}/timeLeft`);
+    //const timeLeftRef = ref(database, `UserDb/${telegramID}/timeLeft`);
     const farmingPointsRef = ref(database, `UserDb/${telegramID}/farmingPoint`);
     const isFarmingRef = ref(database, `UserDb/${telegramID}/isFarming`);
     const checkInRef = ref(database, `UserDb/${telegramID}/checkIn`);
@@ -80,9 +80,9 @@ export const UserProvider = ({ children }) => { // Fix: Destructure children cor
     const unsubscribeLevelReward = onValue(levelRewardRef, (snapshot) => {
       setLevelReward(snapshot.val() || 0);
     });
-    const unsubscribeTimeLeft = onValue(timeLeftRef, (snapshot) => {
-      setTimeLeft(snapshot.val() || null);
-    });
+    //const unsubscribeTimeLeft = onValue(timeLeftRef, (snapshot) => {
+    //  setTimeLeft(snapshot.val() || null);
+    //});
     const unsubscribeFarmingPoint = onValue(farmingPointsRef, (snapshot) => {
       setFarmingPoint(snapshot.val() || 0);
     });
@@ -105,7 +105,7 @@ export const UserProvider = ({ children }) => { // Fix: Destructure children cor
       unsubscribeLevelPoints();
       unsubscribemaxPoints();
       unsubscribeLevelReward();
-      unsubscribeTimeLeft();
+      //unsubscribeTimeLeft();
       unsubscribeFarmingPoint();
       unsubscribeIsFarming();
       unsubscribeCheckIn();
@@ -134,7 +134,7 @@ export const UserProvider = ({ children }) => { // Fix: Destructure children cor
     const levelRef = ref(database, `UserDb/${telegramID}/level`);
     const maxPointsRef = ref(database, `UserDb/${telegramID}/maxPoints`);
 
-    const coinVal = (await get(coinRef)).val();
+     (await get(coinRef)).val();
     runTransaction(coinRef, (currentCoins) => {
       return (currentCoins || 0) + addCoin;
     });

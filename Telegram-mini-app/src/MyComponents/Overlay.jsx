@@ -4,7 +4,7 @@ import { UserContext } from '../UserContext';
 import axios from 'axios';
 
 function Overlay() {
-    const { checkIn, telegramID, continueDay } = useContext(UserContext);
+    const {  telegramID, continueDay } = useContext(UserContext);
     
     const closeOverlay = async () => {
         await axios.post(`${process.env.REACT_APP_SERVER_URL}dailyReward-claim`, { telegramID });

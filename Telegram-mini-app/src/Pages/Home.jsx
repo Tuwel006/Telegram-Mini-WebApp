@@ -1,7 +1,5 @@
-import React, { useEffect, useContext } from 'react';
-import Header from '../MyComponents/Header';
+import React, { useContext } from 'react';
 import Main from '../MyComponents/Main';
-import Footer from '../MyComponents/Footer';
 import { UserContext } from '../UserContext';
 import Overlay from '../MyComponents/Overlay';
 

@@ -1,25 +1,23 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
 import './components.css';
 //import { UserContext, UserProvider } from '../UserContext';
 import axios from 'axios';
 // import { update } from 'firebase/database';
 import { Link } from 'react-router-dom';
-import { getDatabase, ref, onValue, update } from 'firebase/database';
 import Cookies from 'js-cookie';
-import {database} from '../firebase.js';
 import { UserContext } from '../UserContext.js';
 
 
 
 function FarmingBox({onClaim, levelUpdate}) {
-    const [points, setPoints] = useState(0); //useState(1200);
-    const [totalPoints, setTotalPoints] = useState(0);
+    //const [points, setPoints] = useState(0); //useState(1200);
+    //const [totalPoints, setTotalPoints] = useState(0);
     const [loading, setLoading] = useState(false); // New loading state
     const duration = 10;//60*60*8+1200; // 180 minutes in seconds
     //const [farmingPoint, setfarmingPoint] = useState(0);
     //const [isFarming, setisFarming] = useState(null);
 
-    const {farmingPoint, isFarming, updateCoins} = useContext(UserContext);
+    const {farmingPoint, isFarming } = useContext(UserContext);
 const telegramID = Cookies.get("authToken");
     const startFarming = async () => {
       if(telegramID) {
@@ -36,6 +34,7 @@ const telegramID = Cookies.get("authToken");
   
     const claimCoins = async () => {
       try {
+        setLoading(false);
         const points = 150;
         await axios.post(`${process.env.REACT_APP_SERVER_URL}points-claim`, { telegramID, points });
       } catch (error) {

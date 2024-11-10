@@ -1,5 +1,5 @@
 import task_logo from '../icon/task_logo.png';
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useEffect, useContext } from 'react';
 import dollar_coin from '../icon/dollar-coin.png';
 import reward_logo from '../icon/reward_logo.png';
 import bonusDollar_logo from '../icon/bonusDollar_logo.png';
@@ -9,10 +9,10 @@ import { UserContext, UserProvider } from '../UserContext';
 import { Link } from 'react-router-dom';
 export default function Main() {
  
-  const {coin,balance,name,level,levelPoints,maxPoints} = useContext(UserContext);
+  const {coin, level,levelPoints,maxPoints} = useContext(UserContext);
   const user = useContext(UserContext);
 
-  const [timeLeft, setTimeLeft] = useState(null);
+  //const [timeLeft, setTimeLeft] = useState(null);
   
   useEffect(() => {
     const now = new Date();
@@ -20,27 +20,27 @@ export default function Main() {
     countdownEnd.setDate(now.getDate() + 90);  // Set for 90 days later
 
     const interval = setInterval(() => {
-      const diffTime = countdownEnd - new Date();
-      setTimeLeft(diffTime > 0 ? diffTime : 0);
+      //const diffTime = countdownEnd - new Date();
+      //setTimeLeft(diffTime > 0 ? diffTime : 0);
     }, 1000);
 
     return () => clearInterval(interval);  // Cleanup on unmount
   }, []);
 
   // Convert milliseconds to days, hours, minutes, and seconds
-  const formatTime = (time) => {
-    const days = Math.floor(time / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((time % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((time % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((time % (1000 * 60)) / 1000);
+  // const formatTime = (time) => {
+  //   const days = Math.floor(time / (1000 * 60 * 60 * 24));
+  //   const hours = Math.floor((time % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  //   const minutes = Math.floor((time % (1000 * 60 * 60)) / (1000 * 60));
+  //   const seconds = Math.floor((time % (1000 * 60)) / 1000);
 
-    return `${days}D ${hours}H ${minutes}M ${seconds}S`;
-  };
+  //   return `${days}D ${hours}H ${minutes}M ${seconds}S`;
+  // };
  // Current level based on totalPoints
   const pointsInCurrentLevel = levelPoints % maxPoints; // Points in the current level
   let progressPercentage;
-  {(coin!==0 && levelPoints===maxPoints)?progressPercentage = 100
-  :progressPercentage = (pointsInCurrentLevel / maxPoints) * 100}
+  (coin!==0 && levelPoints===maxPoints)?progressPercentage = 100
+  :progressPercentage = (pointsInCurrentLevel / maxPoints) * 100
 
   return (
     <UserProvider> 
