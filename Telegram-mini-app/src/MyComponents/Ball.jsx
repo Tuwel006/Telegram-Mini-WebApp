@@ -1,15 +1,19 @@
 // Ball.js
 import React from 'react';
+import star from '../icon/star.png'
 
 const Ball = ({ id, onCollect, position, speed }) => (
   <div
   onClick={() => onCollect(id, 'ball')}
-  className="bg-blue-500 rounded-full w-8 h-8 absolute cursor-pointer"
+  className=" absolute cursor-pointer"
   style={{
     left: `${position}%`,
     animation: `fall ${speed}s linear`,
     }}
-  ></div>
+  >
+  <img alt='ball' src={star} className='' style={{height: '35px', width: '40px',position:'relative',top:'0px',left: '0px'}}></img>
+
+  </div>
 );
 
 export default Ball;

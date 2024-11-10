@@ -46,7 +46,7 @@ export default function Main() {
     <UserProvider> 
     <div className='flex-grow overflow-y-auto mt-3 pt-3 h-full w-full bg-gray-800 border-t-4 border-yellow-300 rounded-tl-3xl rounded-tr-3xl'>
         <div className='ml-3 mr-3 h-24 w-88 rounded-xl flex px-1 justify-between'>
-            <Link className='shadow-inner bg-slate-900 h-24 w-[calc(33%-0.5rem)] rounded-xl flex flex-col items-center'>
+            <Link to={'/dailyReward'} className='shadow-inner bg-slate-900 h-24 w-[calc(33%-0.5rem)] rounded-xl flex flex-col items-center'>
             <div className='flex justify-center items-center animate-pulse h-4 w-4 rounded-full bg-red-900' style={{position:'relative',bottom:'5px',left:'55px'}}>
               <p className='text-white'>5</p>      
             </div>

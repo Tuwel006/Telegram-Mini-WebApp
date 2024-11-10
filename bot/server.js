@@ -14,13 +14,27 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+const admin = require("firebase-admin");
+
+const serviceAccount = require("./tarbo-coin-firebase-adminsdk-4zphx-20e3cfeabb.json");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://tarbo-coin-default-rtdb.asia-southeast1.firebasedatabase.app"
+});
+
+const db = admin.database();
+
+
 if (!botToken) {
   console.error('Bot token is missing.');
   process.exit(1);
 }
+else{
+  console.log("Bot Token: "+botToken);
+}
 
 const bot = new Telegraf(botToken);
-const userFilePath = path.join(__dirname, 'users.json');
 
 // Generate a random token
 const generateToken = () => crypto.randomBytes(16).toString('hex');
@@ -47,6 +61,248 @@ bot.start(async (ctx) => {
 });
 
 bot.launch();
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))
+
+
+
+// Firebase Function
+
+const cookieParser = require('cookie-parser'); // Ensure you have cookie-parser installed
+app.use(cookieParser());
+
+app.get('/initialize-user/:telegramId', async (req, res) => {
+  const telegramId = req.params.telegramId;
+  const {userName} = req.body;
+  const userRef = db.ref(`UserDb/${telegramId}`);
+
+  try {
+    const snapshot = await userRef.once('value');
+    const date = new Date();
+    if (!snapshot.exists()) {
+      await userRef.set({
+        name: userName,
+        balance: 0,
+        coin: 0,
+        level: 1,
+        levelPoints: 0,
+        isFarming: false,
+        telegramId: telegramId,
+        farmingPoint: 0,
+        maxPoints:200,
+        checkIn: {
+          day: date.getDay(),
+          month: date.getMonth(),
+          year: date.getFullYear(),
+          collect: false,
+        },
+        levelReward: [false],
+        continueDay: 1,
+      });
+    }
+
+    // Set the Telegram ID as a cookie for client-side use
+    res.cookie('authToken', telegramId, { httpOnly: true });
+    res.send('User initialized');
+  } catch (error) {
+    res.status(500).send('Error initializing user');
+  }
+});
+
+const farmingInterval = 1000; // 1 second
+
+setInterval(async () => {
+  const userDbRef = admin.database().ref('UserDb');
+  const snapshot = await userDbRef.orderByChild('isFarming').equalTo(true).once('value');
+
+  snapshot.forEach(async (childSnapshot) => {
+    const userData = childSnapshot.val();
+    if (userData.farmingPoint  < 10) {
+      await childSnapshot.ref.update({
+        farmingPoint: userData.farmingPoint + 2
+      });
+    } else {
+      await childSnapshot.ref.update({
+        isFarming: false
+      });
+    }
+  });
+}, farmingInterval);
+
+app.post('/start-farming', async (req, res) => {
+  try {
+    console.log('Request Here..');
+    const {telegramID} = req.body;
+    const userRef = db.ref(`UserDb/${telegramID}`);
+    const snapshot = await userRef.once('value');
+    // if(!snapshot) {
+    //   return res.status(404).json("User Not Exists");
+    // }
+    const userData = snapshot.val();
+    await userRef.update({
+      isFarming: true
+    });
+    console.log(userData);
+  } catch (error) {
+    console.log(error);
+  }
+})
+app.post('/points-claim', async(req, res) => {
+  try {
+    const {telegramID, points} = req.body;
+    const userRef = db.ref(`UserDb/${telegramID}`);
+    const snapshot = await userRef.once('value');
+    if(!snapshot) {
+      return res.json("User Not Exists");
+    }
+    const userData = snapshot.val();
+    if(userData.levelPoints+points>userData.maxPoints) {
+      const levelReward = userData.levelReward;
+      const date = new Date();
+      await userRef.update({
+        coin: userData.coin+points,
+        levelPoints: userData.levelPoints+points-userData.maxPoints,
+        level: userData.level+1,
+        farmingPoint: 0,
+        maxPoints: userData.maxPoints+(userData.level)*20,
+        levelReward: [...levelReward, false],     
+       });
+    }
+    else{
+      await userRef.update({
+        coin: userData.coin+points,
+        levelPoints: userData.levelPoints+points,
+        farmingPoint: 0,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+})
+
+app.post('/checkIn', async (req, res) => {
+  try {
+    const { telegramID } = req.body;
+    const userRef = db.ref(`UserDb/${telegramID}`);
+    const snapshot = await userRef.once('value');
+    
+    if (snapshot.exists()) {
+      const userData = snapshot.val();
+      const userDate = userData.checkIn;
+      const date = new Date();
+      date.setDate(11);
+      const newCheckIn = {
+        day: date.getDate(),  // get the actual day of the month
+        month: date.getMonth(),  // get the current month
+        year: date.getFullYear(),  // get the full year
+        collect: false
+      };
+
+      // Compare current date to user's last check-in date
+      if ((date.getDate() - userDate.day === 1 && date.getMonth() === userDate.month && date.getFullYear() === userDate.year)) {
+        await userRef.update({
+          continueDay: userData.continueDay + 1,  // use userData.continueDay instead of day
+          checkIn: newCheckIn,
+        });
+      } else if(date.getDate() !== userDate.day) {
+        await userRef.update({
+          continueDay: 1,
+          checkIn: newCheckIn,
+        });
+      }
+
+      return res.json("Check-in updated successfully.");
+    } else {
+      return res.json("User not found.");
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "An error occurred while processing your request." });
+  }
+});
+
+
+app.post('/dailyReward-claim', async(req, res) => {
+  try {
+    const {telegramID} = req.body;
+    const userRef = db.ref(`UserDb/${telegramID}`);
+    const snapshot = await userRef.once('value');
+    const checkInRef = db.ref(`UserDb/${telegramID}/checkIn`);
+    if(!snapshot) {
+      return res.json("User Not Exists");
+    }
+    const userData = snapshot.val();
+    const points = 20+(userData.continueDay-1)*10;
+    if(!userData.checkIn.collect){
+      const levelReward = userData.levelReward
+      if(userData.levelPoints+points>userData.maxPoints) {
+        await userRef.update({
+          coin: userData.coin+points,
+          levelPoints: userData.levelPoints+points-userData.maxPoints,
+          level: userData.level+1,
+          maxPoints: userData.maxPoints+(userData.level)*20,
+          levelReward: [...levelReward, false],
+        },);
+      }
+      else{
+        await userRef.update({
+          coin: userData.coin+points,
+          levelPoints: userData.levelPoints+points,
+        });
+      }
+      await checkInRef.update({collect:true});
+    }
+  } catch (error) {
+    console.log(error);
+  }
+})
+
+
+app.post('/levelReward-claim', async (req, res) => {
+  try {
+    const {idx, telegramID} = req.body;
+    const val = (idx+1)*0.01;
+    const userRef = db.ref(`UserDb/${telegramID}`);
+    const snapshot = await userRef.once('value');
+  if(snapshot.exists()){
+    const userData = snapshot.val();
+    const levelReward = userData.levelReward;
+    levelReward[idx] = true;
+    await userRef.update({
+      balance: userData.balance+val,
+      levelReward,
+    })
+  }
+  else{
+    console.log("User Not Found");
+  }
+  
+  } catch (error) {
+    console.log(error);
+  }
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // API Endpoint to save user data and start timers
 const formatTime = (seconds) => {
@@ -57,150 +313,9 @@ const formatTime = (seconds) => {
   return { days, hours, minutes, seconds: secs };
 };
 
-const readUserTime = () => {
-  const data = fs.readFileSync(userFilePath, 'utf-8');
-  return JSON.parse(data);
-};
-
-// Helper function to write the admin data
-const writeUserTime = (data) => {
-  fs.writeFileSync(userFilePath, JSON.stringify(data, null, 2), 'utf-8');
-};
-
 
 // Endpoint to save user data and start timers
-app.post('/startTimer/:telegramID', (req, res) => {
-  const { userName, telegramID } = req.body;
-  console.log("Telegram ID: "+telegramID+"  UserNmae: "+userName);
-  const initial45DayCountdown = 45 * 24 * 60 * 60;  // 45 days in seconds
-  const initial8HourCountdown = 8 * 60 * 60;  // 8 hours in seconds
 
-  // Load existing users
-  let users = [];
-  if (fs.existsSync(userFilePath)) {
-    users = JSON.parse(fs.readFileSync(userFilePath, 'utf-8'));
-  }
-
-  // Check if user exists
-  const existingUser = users.find(user => user.telegramID === telegramID);
-  console.log(existingUser);
-  if (existingUser) {
-    return res.status(400).json({ message: 'User already exists' });
-  }
-  // Add new user with formatted countdowns
-  const newUser = {
-    userName,
-    telegramID,
-    timestamp45Day: formatTime(initial45DayCountdown),
-    timestamp8Hour: formatTime(initial8HourCountdown),
-    claimStarted: false,
-    claimPoint:0,
-  };
-  users.push(newUser);
-
-  // Save updated users to JSON
-  fs.writeFileSync(userFilePath, JSON.stringify(users, null, 2));
-  res.json({ message: 'User data saved successfully', user: newUser });
-});
-
-// Function to update countdowns
-const updateTimers = () => {
-  if (!fs.existsSync(userFilePath)) return;
-
-  let users = readUserTime();
-  users = users.map(user => {
-    // Update 45-day timer
-    let timestamp45DayInSeconds = 
-      user.timestamp45Day.days * 24 * 60 * 60 +
-      user.timestamp45Day.hours * 60 * 60 +
-      user.timestamp45Day.minutes * 60 +
-      user.timestamp45Day.seconds;
-
-    if (timestamp45DayInSeconds > 0) {
-      timestamp45DayInSeconds -= 1;
-      user.timestamp45Day = formatTime(timestamp45DayInSeconds);
-    }
-
-    // Update 8-hour claim timer if started
-    if (user.claimStarted) {
-      let maxClaim = 50;
-
-      if (user.claimPoint < maxClaim) {
-        let inc = 50/(8*60*60);
-        user.claimPoint+=inc;
-      }
-    }
-    return user;
-  });
-
-  // Write updated users back to JSON file
-  fs.writeFileSync(userFilePath, JSON.stringify(users, null, 2));
-};
-
-// Update timers every second
-setInterval(updateTimers, 1000);
-// API to start the 8-hour claim timer
-app.post('/startClaim', (req, res) => {
-  const { telegramID } = req.body;
-  try {
-    const users = readUserTime();
-    const user = users.find(a=> a.telegramID === telegramID);
-    user.claimStarted = true;//!user.claimStarted;
-    writeUserTime(users);
-  } catch (error) {
-    console.log(error);
-  }  
-});
-
-app.post('/stopClaim', (req, res) => {
-  const { telegramID } = req.body;
-  try {
-    const users = readUserTime();
-    const user = users.find(a=> a.telegramID === telegramID);
-    user.claimStarted = false;//!user.claimStarted;
-    user.claimPoint = 0;
-    writeUserTime(users);
-  } catch (error) {
-    console.log(error);
-  }  
-});
-
-
-
-app.get('/liveFarmingPoints/:telegramID', (req,res) => {
-  const {telegramID} = req.params;
-  //console.log("TeleGramID: "+telegramID);
-  try {
-    const users = readUserTime();
-    const user = users.find(a => a.telegramID === telegramID);
-    if(user) {
-      const newFP = user.claimPoint;
-      const newFarmingStatus = user.claimStarted;
-      res.status(200).json({newFP, newFarmingStatus});
-    }
-    else {
-      res.status(500).json({message: "User Not Found"});
-    }
-  } catch (error) {
-    console.log(error);
-  }
-})
-
-app.get('/timeLeft/:telegramID', (req,res) => {
-  const {telegramID} = req.params;
-  try {
-    const users = readUserTime();
-    const user = users.find(a => a.telegramID === telegramID);
-    if(user) {
-      res.status(200).json(user.timestamp45Day);
-    }
-    else {
-      res.status(500).json({message: "User Not Found"});
-    }
-  } catch (error) {
-    console.log(error);
-  }
-})
 
 
 // Start the server

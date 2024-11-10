@@ -16,6 +16,10 @@ export const UserProvider = ({ children }) => { // Fix: Destructure children cor
   const [maxPoints, setMaxPoints] = useState(100);
   const [levelReward, setLevelReward] = useState([]);
   const [timeLeft, setTimeLeft] = useState(null);
+  const [farmingPoint, setFarmingPoint] = useState(0);
+  const [isFarming, setIsFarming] = useState(null);
+  const [checkIn, setCheckIn] = useState('');
+  const [continueDay, setContinueDay] = useState('');
 
   // Retrieve telegramID from the URL parameters
   const telegramID = Cookies.get('authToken') || new URLSearchParams(window.location.search).get('telegramID');
@@ -42,6 +46,11 @@ export const UserProvider = ({ children }) => { // Fix: Destructure children cor
     const maxPointsRef = ref(database, `UserDb/${telegramID}/maxPoints`);
     const levelRewardRef = ref(database, `UserDb/${telegramID}/levelReward`);
     const timeLeftRef = ref(database, `UserDb/${telegramID}/timeLeft`);
+    const farmingPointsRef = ref(database, `UserDb/${telegramID}/farmingPoint`);
+    const isFarmingRef = ref(database, `UserDb/${telegramID}/isFarming`);
+    const checkInRef = ref(database, `UserDb/${telegramID}/checkIn`);
+    const continueDayRef = ref(database, `UserDb/${telegramID}/continueDay`);
+
 
 
 
@@ -74,6 +83,18 @@ export const UserProvider = ({ children }) => { // Fix: Destructure children cor
     const unsubscribeTimeLeft = onValue(timeLeftRef, (snapshot) => {
       setTimeLeft(snapshot.val() || null);
     });
+    const unsubscribeFarmingPoint = onValue(farmingPointsRef, (snapshot) => {
+      setFarmingPoint(snapshot.val() || 0);
+    });
+    const unsubscribeIsFarming = onValue(isFarmingRef, (snapshot) => {
+      setIsFarming(snapshot.val() || null);
+    });
+    const unsubscribeCheckIn= onValue(checkInRef, (snapshot) => {
+      setCheckIn(snapshot.val() || '');
+    });
+    const unsubscribeContinueDay= onValue(continueDayRef, (snapshot) => {
+      setContinueDay(snapshot.val() || '');
+    });
 
     // Cleanup listeners on unmount
     return () => {
@@ -85,6 +106,10 @@ export const UserProvider = ({ children }) => { // Fix: Destructure children cor
       unsubscribemaxPoints();
       unsubscribeLevelReward();
       unsubscribeTimeLeft();
+      unsubscribeFarmingPoint();
+      unsubscribeIsFarming();
+      unsubscribeCheckIn();
+      unsubscribeContinueDay();
     };
   }, [telegramID]); // Add telegramID to the dependency array
   
@@ -154,6 +179,10 @@ export const UserProvider = ({ children }) => { // Fix: Destructure children cor
     maxPoints,
     levelReward,
     telegramID,
+    isFarming,
+    farmingPoint,
+    checkIn,
+    continueDay,
     updateCoins,
     updateBalance,
     updateLevelCheck,

@@ -7,6 +7,7 @@ import closeLock from '../icon/closeLock.png'
 import dollar_sign from '../icon/dolar_sign.png'
 import { UserContext, UserProvider } from '../UserContext';
 import { Link } from 'react-router-dom';
+import axios from 'axios'
 
 export default function Level() {
   const {updateBalance, updateLevelCheck} = useContext(UserContext);
@@ -14,12 +15,13 @@ export default function Level() {
     const [dollarLeval, setDollarLevel] = useState(0);
     let value;
     const handleLevelClaim = (idx) => {
-     const val = (idx+1)*0.01;
+      console.log("Button Clicked");
+     const telegramID = user.telegramID;
             //val = parseFloat(val.toFixed(2));
-      if(user.levelReward[idx]) {
-        updateBalance(val);
+      if(!user.levelReward[idx] && telegramID) {
+        axios.post(`${process.env.REACT_APP_SERVER_URL}levelReward-claim`,{idx, telegramID});
       }
-      updateLevelCheck(idx);
+
     }
   return (
     <UserProvider>
@@ -37,13 +39,13 @@ export default function Level() {
             value = parseFloat(value.toFixed(10)),
             <button
               key={index}
-              className={`rounded-xl bg-green-600 h-20 flex flex-col items-center text-white font-bold ${(index+2>user.level) ? 'bg-gray-500 text-gray-300 opacity-50':(user.level>index+1 && user.levelReward[index]===true)? 'bg-blue-400 text-white border-2 border-yellow-500 animate-pulse' : 'bg-blue-500 text-white'}`}
+              className={`rounded-xl bg-green-600 h-20 flex flex-col items-center text-white font-bold ${(index+1>user.level) ? 'bg-gray-500 text-gray-300 opacity-50':(user.level>=index+1 && user.levelReward[index]===false)? 'bg-blue-400 text-white border-2 border-yellow-500 animate-pulse' : 'disabled-true bg-blue-500 text-white'}`}
               onClick={()=>handleLevelClaim(index)}
             >
               <p>{`Level ${index + 1}`}</p>
               <p className='text-yellow-400'>${value}</p>
               {(index+2>user.level)?<img alt='closeLock' src={closeLock} className='' style={{height: '35px', width: '40px',position:'relative',top:'-3px',left: '0px'}}></img>
-              :(user.level>index+1 && user.levelReward[index]) ?<img alt='openingLock' src={openingLock} className='' style={{height: '35px', width: '40px',position:'relative',top:'-3px',left: '0px'}}></img>
+              :(user.level>index+1 && !user.levelReward[index]) ?<img alt='openingLock' src={openingLock} className='' style={{height: '35px', width: '40px',position:'relative',top:'-3px',left: '0px'}}></img>
               :<img alt='opendLock' src={opendLock} className='' style={{height: '35px', width: '40px',position:'relative',top:'-3px',left: '0px'}}></img>}
               
             </button>

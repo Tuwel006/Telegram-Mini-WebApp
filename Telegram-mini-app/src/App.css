@@ -343,7 +343,10 @@ textarea {
   animation: rain 3s linear infinite;
 }
 
-
+body.loading {
+  filter: brightness(0.5);  /* Reduce brightness when loading */
+  pointer-events: none;     /* Prevent interactions while loading */
+}
 
 /*
 Remove the inheritance of text transform in Edge and Firefox.

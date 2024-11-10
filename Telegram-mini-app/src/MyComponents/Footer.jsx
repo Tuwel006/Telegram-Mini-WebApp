@@ -9,7 +9,7 @@ export default function Footer() {
   return (
     <>
     <div style={{height: '105px'}} className=' px-2 pb-2 flex justify-between items-start bg-slate-900 text-light w-88 rounded-tl-3xl rounded-tr-3xl overflow-hidden'>
-    <Link to={'/airdrop'} className='bg-slate-900 hover:bg-slate-700 active:bg-slate-700 focus:outline-none focus:ring focus:ring-violet-300 ... cursor-pointer pt-1 flex flex-col items-center'>
+    <Link to={'/Referral'} className='bg-slate-900 hover:bg-slate-700 active:bg-slate-700 focus:outline-none focus:ring focus:ring-violet-300 ... cursor-pointer pt-1 flex flex-col items-center'>
     <img alt='airDropBtn_logo' src={airDropBtn_logo} className='' style={{height: '47px', width: '47px'}}></img>
     <p>Airdrop</p>
     </Link>

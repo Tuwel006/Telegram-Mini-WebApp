@@ -1,15 +1,19 @@
 // Bomb.js
 import React from 'react';
+import bomb from '../icon/bomb.png'
 
 const Bomb = ({ id, onCollect, position, speed }) => (
   <div
   onClick={() => onCollect(id, 'bomb')}
-  className="bg-red-600 rounded-full w-8 h-8 absolute cursor-pointer"
+  className=" absolute cursor-pointer"
   style={{
     left: `${position}%`,
     animation: `fall ${speed}s linear`,
     }}
-  ></div>
+  >
+   <img alt='bomb' src={bomb} className='' style={{height: '45px', width: '55px',position:'relative',top:'0px',left: '0px'}}></img>
+
+  </div>
 );
 
 export default Bomb;
