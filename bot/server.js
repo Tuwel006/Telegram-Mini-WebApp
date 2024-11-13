@@ -16,7 +16,7 @@ app.use(cors());
 
 const admin = require("firebase-admin");
 
-const serviceAccount = require("./tarbo-coin-firebase-adminsdk-4zphx-20e3cfeabb.json");
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
