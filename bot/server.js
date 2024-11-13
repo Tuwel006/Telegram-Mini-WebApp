@@ -16,7 +16,7 @@ app.use(cors());
 
 const admin = require("firebase-admin");
 
-const serviceAccount = require("./tarbo-coin-firebase-adminsdk-4zphx-20e3cfeabb.json");
+const serviceAccount = require("./tarbo-coin-firebase-adminsdk-4zphx-5ca1105398.json");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -71,16 +71,17 @@ process.once('SIGTERM', () => bot.stop('SIGTERM'))
 const cookieParser = require('cookie-parser'); // Ensure you have cookie-parser installed
 app.use(cookieParser());
 
-app.get('/initialize-user/:telegramId', async (req, res) => {
+app.get('/initialize-user/:telegramId/:userName', async (req, res) => {
   const telegramId = req.params.telegramId;
-  const {userName} = req.body;
+  const userName = req.params.userName;
+  console.log("Username: "+userName);
   const userRef = db.ref(`UserDb/${telegramId}`);
 
   try {
     const snapshot = await userRef.once('value');
     const date = new Date();
     if (!snapshot.exists()) {
-      await userRef.set({
+      const response = await userRef.set({
         name: userName,
         balance: 0,
         coin: 0,
@@ -99,6 +100,10 @@ app.get('/initialize-user/:telegramId', async (req, res) => {
         levelReward: [false],
         continueDay: 1,
       });
+      console.log("Response: "+response);
+    }
+    else{
+      Console.log("Else Fire>>>");
     }
 
     // Set the Telegram ID as a cookie for client-side use

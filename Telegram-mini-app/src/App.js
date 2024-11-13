@@ -5,8 +5,8 @@ import Level from './Pages/Level';
 import Guide from './Pages/Guide';
 import Referral from './Pages/Referral';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { UserProvider } from './UserContext';
-import React, {useCallback, useEffect, useState} from 'react';
+import { UserContext, UserProvider } from './UserContext';
+import React, {useCallback, useContext, useEffect, useState} from 'react';
 import Header from './MyComponents/Header';
 import Footer from './MyComponents/Footer';
 import Task from './Pages/Task';
@@ -18,15 +18,16 @@ import DailyReward from './Pages/DailyReward';
 
 function App() {
   const [loading, setLoading] = useState(true);
+  const user = useContext(UserContext);
   const postData = useCallback( async (telegramID, userName) => {
-    if(telegramID && userName) {
+    if(telegramID && userName && !user) {
       try {
-        await axios.get(`${process.env.REACT_APP_SERVER_URL}initialize-user/${telegramID}`, {userName,telegramID});
+        await axios.get(`${process.env.REACT_APP_SERVER_URL}initialize-user/${telegramID}/${userName}`, {userName,telegramID});
       } catch (error) {
         console.log("ERROR in START TIMER: "+error);
       }
     }
-  },[])
+  },[user])
 
 
     useEffect(() => {
@@ -35,7 +36,16 @@ function App() {
       const telegramID = urlParams.get('telegramID') || "Test";
       const fn = urlParams.get('fn');
       const ln = urlParams.get('ln');
-      const userName = fn+' '+ln || "Unknown";
+      let userName;
+      if(fn) {
+        userName+=fn;
+      }
+      if(ln){
+        userName+=" "+ln;
+      }
+      if(!fn&&!ln){
+        userName+="Your Name";
+      }
       const token = urlParams.get('token');
       //setShowOverlay(checkIn.collect);
       if(window.location.reload){
