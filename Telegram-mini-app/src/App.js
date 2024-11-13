@@ -36,7 +36,7 @@ function App() {
       const telegramID = urlParams.get('telegramID') || "Test";
       const fn = urlParams.get('fn');
       const ln = urlParams.get('ln');
-      let userName;
+      let userName='';
       if(fn) {
         userName+=fn;
       }
