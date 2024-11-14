@@ -87,9 +87,7 @@ function FarmingBox({ onClaim, levelUpdate }) {
           )}
         </div>
       </div>
-      <Link className='mt-2 mx-8 border-2 border-white h-5 w-5 bg-blue-800 p-1 rounded-xl text-white' to={'/game'}>
-        GAME
-      </Link>
+      
     </>
   );
 }

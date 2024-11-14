@@ -98,6 +98,9 @@ export default function Main() {
 {user?( 
       <div className="text-center bg-gray-800 text-white p-3 pt-0 rounded-md shadow-lg">
       <h1 className="text-2xl font-bold mb-3">Air Drop will Open Very Soon..</h1>
+      <Link className='mt-2 mx-8 border-2 border-white h-5 w-5 bg-blue-800 p-1 rounded-xl text-white' to={'/game'}>
+        GAME
+      </Link>
     </div>
 ):<></> }
     {user?(<FarmingBox/>):<></>}
