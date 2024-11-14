@@ -34,6 +34,8 @@ const telegramID = Cookies.get("authToken");
   
     const claimCoins = async () => {
       try {
+        console.log("Button Clicked for Claim");
+        
         setLoading(false);
         const points = 150;
         await axios.post(`${process.env.REACT_APP_SERVER_URL}points-claim`, { telegramID, points });

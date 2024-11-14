@@ -16,7 +16,7 @@ app.use(cors());
 
 const admin = require("firebase-admin");
 
-const serviceAccount = require("./tarbo-coin-firebase-adminsdk-4zphx-5ca1105398.json");
+const serviceAccount = require("./tarbo-coin-firebase-adminsdk-4zphx-0bfd9de34d.json");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -92,7 +92,7 @@ app.get('/initialize-user/:telegramId/:userName', async (req, res) => {
         farmingPoint: 0,
         maxPoints:200,
         checkIn: {
-          day: date.getDay(),
+          day: date.getDate(),
           month: date.getMonth(),
           year: date.getFullYear(),
           collect: false,
@@ -157,13 +157,13 @@ app.post('/points-claim', async(req, res) => {
     const {telegramID, points} = req.body;
     const userRef = db.ref(`UserDb/${telegramID}`);
     const snapshot = await userRef.once('value');
+    console.log()
     if(!snapshot) {
       return res.json("User Not Exists");
     }
     const userData = snapshot.val();
     if(userData.levelPoints+points>userData.maxPoints) {
       const levelReward = userData.levelReward;
-      const date = new Date();
       await userRef.update({
         coin: userData.coin+points,
         levelPoints: userData.levelPoints+points-userData.maxPoints,
@@ -195,7 +195,6 @@ app.post('/checkIn', async (req, res) => {
       const userData = snapshot.val();
       const userDate = userData.checkIn;
       const date = new Date();
-      date.setDate(11);
       const newCheckIn = {
         day: date.getDate(),  // get the actual day of the month
         month: date.getMonth(),  // get the current month
