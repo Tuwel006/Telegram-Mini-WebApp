@@ -1,28 +1,32 @@
-import React, {useContext, useState} from 'react'
+import React, {useContext, useEffect, useState} from 'react'
 import closeLock from '../icon/closeLock.png'
 import { UserContext, UserProvider } from '../UserContext.js';
-import axios from 'axios';
 
 
 export default function Widthdraw() {
   const user = useContext(UserContext);
-  const telegramID = user.telegramID;
+  const timeLeft = user.timeLeft;
 
   const [time, setTime] = useState('');
 
-  //const time = user.timeLeft;
-const getTime = async () => {
-  try {
-    //console.log("TELEGRAM ID CHECK: "+telegramID);
-    
-    const response = await axios.get(`${process.env.REACT_APP_SERVER_URL}/timeLeft/${telegramID}`,{telegramID});
-  const userTime = response.data
-  setTime(userTime);
-  } catch (error) {
-    console.log(error);
-  }
-}
-getTime();
+  useEffect(()=> {
+    const formatTime = (seconds) => {
+      if(seconds) {
+        const newTime = {
+          days: Math.floor(seconds / (24 * 60 * 60)),
+          hours: Math.floor((seconds % (24 * 60 * 60)) / (60 * 60)),
+          minutes: Math.floor((seconds % (60 * 60)) / 60),
+          seconds: seconds % 60,
+        }
+        return newTime;
+      }
+      else {
+        return "";
+      }
+    };
+    const newTime = formatTime(timeLeft);
+    setTime(newTime);
+  },[setTime,timeLeft])
 
   return (
     <UserProvider>
@@ -37,7 +41,7 @@ getTime();
             <img alt='closeLock' src={closeLock} className='' style={{height: '35px', width: '40px',position:'relative',top:'0px',left: '0px'}}></img>
           </button>
           </div>
-          {time?<h1 className='text-2xl mt-4'>{String(time.days).padStart(2,'0')} : {String(time.hours).padStart(2,'0')} : {String(time.minutes).padStart(2,'0')} : {String(time.seconds).padStart(2,'0')}</h1>:''}
+          {time.days?<h1 className='text-2xl mt-4'>{String(time.days).padStart(2,'0')}D : {String(time.hours).padStart(2,'0')}H : {String(time.minutes).padStart(2,'0')}M : {String(time.seconds).padStart(2,'0')}S</h1>:''}
 
         </div>
         <div>

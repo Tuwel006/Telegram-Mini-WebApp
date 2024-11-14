@@ -16,7 +16,8 @@ app.use(cors());
 
 const admin = require("firebase-admin");
 
-const serviceAccount = require("./tarbo-coin-firebase-adminsdk-4zphx-0bfd9de34d.json");
+const serviceAccountPth = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+const serviceAccount = require(serviceAccountPth);
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -40,29 +41,29 @@ const bot = new Telegraf(botToken);
 const generateToken = () => crypto.randomBytes(16).toString('hex');
 
 // Bot setup
-bot.start(async (ctx) => {
-  const user = ctx.from;
-  const firstName = encodeURIComponent(ctx.from.first_name || 'Unknown');
-  const lastName = encodeURIComponent(ctx.from.last_name || 'Unknown');
-  const telegramID = ctx.from.id;
-  const token = generateToken();
+// bot.start(async (ctx) => {
+//   const user = ctx.from;
+//   const firstName = encodeURIComponent(ctx.from.first_name || 'Unknown');
+//   const lastName = encodeURIComponent(ctx.from.last_name || 'Unknown');
+//   const telegramID = ctx.from.id;
+//   const token = generateToken();
 
-  try {
-    const userAppUrl = `${appUrl}?telegramID=${telegramID}&fn=${firstName}&ln=${lastName}&token=${token}`;
-    await ctx.reply(`Hello, ${firstName} ${lastName}. Click "Go" to access the app:`, {
-      reply_markup: {
-        inline_keyboard: [[{ text: 'Go', web_app: { url: userAppUrl } }]]
-      }
-    });
-  } catch (error) {
-    console.error('Error while processing the user:', error);
-    await ctx.reply('An error occurred. Please try again later.');
-  }
-});
+//   try {
+//     const userAppUrl = `${appUrl}?telegramID=${telegramID}&fn=${firstName}&ln=${lastName}&token=${token}`;
+//     await ctx.reply(`Hello, ${firstName} ${lastName}. Click "Go" to access the app:`, {
+//       reply_markup: {
+//         inline_keyboard: [[{ text: 'Go', web_app: { url: userAppUrl } }]]
+//       }
+//     });
+//   } catch (error) {
+//     console.error('Error while processing the user:', error);
+//     await ctx.reply('An error occurred. Please try again later.');
+//   }
+// });
 
-bot.launch();
-process.once('SIGINT', () => bot.stop('SIGINT'))
-process.once('SIGTERM', () => bot.stop('SIGTERM'))
+// bot.launch();
+// process.once('SIGINT', () => bot.stop('SIGINT'))
+// process.once('SIGTERM', () => bot.stop('SIGTERM'))
 
 
 
@@ -74,7 +75,6 @@ app.use(cookieParser());
 app.get('/initialize-user/:telegramId/:userName', async (req, res) => {
   const telegramId = req.params.telegramId;
   const userName = req.params.userName;
-  console.log("Username: "+userName);
   const userRef = db.ref(`UserDb/${telegramId}`);
 
   try {
@@ -99,8 +99,8 @@ app.get('/initialize-user/:telegramId/:userName', async (req, res) => {
         },
         levelReward: [false],
         continueDay: 1,
+        timeLeft: 50*24*60*60,
       });
-      console.log("Response: "+response);
     }
     else{
       Console.log("Else Fire>>>");
@@ -118,21 +118,42 @@ const farmingInterval = 1000; // 1 second
 
 setInterval(async () => {
   const userDbRef = admin.database().ref('UserDb');
-  const snapshot = await userDbRef.orderByChild('isFarming').equalTo(true).once('value');
+  
+  try {
+    const snapshot = await userDbRef.orderByChild('isFarming').equalTo(true).once('value');
 
-  snapshot.forEach(async (childSnapshot) => {
-    const userData = childSnapshot.val();
-    if (userData.farmingPoint  < 10) {
-      await childSnapshot.ref.update({
-        farmingPoint: userData.farmingPoint + 2
-      });
-    } else {
-      await childSnapshot.ref.update({
-        isFarming: false
-      });
-    }
-  });
+    // Create an array of promises to update all users concurrently
+    const updates = [];
+
+    snapshot.forEach((childSnapshot) => {
+      const userData = childSnapshot.val();
+
+      if (userData.farmingPoint < 1000) {
+        // Prepare the update operation to increase farmingPoint by 2
+        updates.push(
+          childSnapshot.ref.update({
+            farmingPoint: userData.farmingPoint + 2,
+          })
+        );
+      } else {
+        // Prepare the update operation to set isFarming to false
+        updates.push(
+          childSnapshot.ref.update({
+            isFarming: false,
+          })
+        );
+      }
+    });
+
+    // Wait for all updates to complete
+    await Promise.all(updates);
+
+  } catch (error) {
+    console.error("Error updating farming points:", error);
+  }
+
 }, farmingInterval);
+
 
 app.post('/start-farming', async (req, res) => {
   try {
@@ -286,6 +307,33 @@ app.post('/levelReward-claim', async (req, res) => {
   }
 })
 
+const updateUserTimeLeft = async () => {
+  const userDbRef = db.ref('UserDb');
+  
+  try {
+    // Retrieve all users with a single query
+    const snapshot = await userDbRef.once('value');
+
+    const updates = {};
+
+    snapshot.forEach((childSnapshot) => {
+      const userData = childSnapshot.val();
+      if (userData.timeLeft && userData.timeLeft > 0) {
+        // Add the decrement operation to the batch
+        updates[`${childSnapshot.key}/timeLeft`] = userData.timeLeft - 1;
+      }
+    });
+
+    // Perform the batch update in one go
+    await userDbRef.update(updates);
+
+  } catch (error) {
+    console.error('Error updating timeLeft:', error);
+  }
+};
+
+// Set the interval to call this function every minute to reduce load
+setInterval(updateUserTimeLeft, 1000); 
 
 
 

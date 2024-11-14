@@ -55,7 +55,7 @@ export default function Level() {
               {(index+1<=user.level && user.levelReward[index]===true)?<img alt='opendLock' src={opendLock} className='' style={{height: '35px', width: '40px',position:'relative',top:'-3px',left: '0px'}}></img>
               :(user.level>index+1 && !user.levelReward[index]) ?<img alt='openingLock' src={openingLock} className='' style={{height: '35px', width: '40px',position:'relative',top:'-3px',left: '0px'}}></img>              
               :<img alt='closeLock' src={closeLock} className='' style={{height: '35px', width: '40px',position:'relative',top:'-3px',left: '0px'}}></img>}
-              {loading && (
+              {loading && index+1<=user.level && user.levelReward[index]===true && (
             <div className="absolute inset-0 flex justify-center items-center">
               <div className="w-4 h-4 border-4 border-t-transparent border-blue-500 border-solid rounded-full animate-spin"></div>
             </div>
