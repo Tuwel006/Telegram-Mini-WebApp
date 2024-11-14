@@ -52,14 +52,14 @@ function FarmingBox({ onClaim, levelUpdate }) {
           
           {(!isFarming && !loading && farmingPoint < duration) ? (
             <div
-              onMouseDown={startFarming} onTouchStart={startFarming} // Handles touch on mobile
+              onClick={startFarming} // Handles touch on mobile
               className="w-full h-full bg-green-500 flex items-center justify-center cursor-pointer"
             >
               <p className="text-gray-200 text-xl font-bold">Farming</p>
             </div>
           ) : (farmingPoint >= duration) ? (
             <div
-              onMouseDown={claimCoins} onTouchStart={claimCoins} // Handles touch on mobile
+              onClick={claimCoins}// Handles touch on mobile
               className="w-full h-full bg-blue-500 flex items-center justify-center cursor-pointer"
             >
               <p className="text-xl text-white font-bold">Claim {farmingPoint}</p>
