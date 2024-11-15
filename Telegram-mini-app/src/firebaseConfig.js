@@ -1,11 +1,12 @@
 const firebaseConfig = {
-  apiKey: "AIzaSyCJITJrn-G1fyedzSmORZR4kEDg29IlSVg",
-  authDomain: "testdb-2d608.firebaseapp.com",
-  databaseURL: "https://testdb-2d608-default-rtdb.firebaseio.com",
-  projectId: "testdb-2d608",
-  storageBucket: "testdb-2d608.appspot.com",
-  messagingSenderId: "633392036827",
-  appId: "1:633392036827:web:084e0dd25c46a4180945fe"
+  apiKey: "AIzaSyAlf6cPn_8iQdqKQ6BUBMPQBBtYRG9vwYo",
+  authDomain: "tarbo-coin-83350.firebaseapp.com",
+  databaseURL: "https://tarbo-coin-83350-default-rtdb.firebaseio.com/",
+  projectId: "tarbo-coin-83350",
+  storageBucket: "tarbo-coin-83350.firebasestorage.app",
+  messagingSenderId: "102108533132",
+  appId: "1:102108533132:web:7f4356101231aa4ac106a9",
+  measurementId: "G-7ZHY2J6NPL"
 };
 
 export default firebaseConfig;

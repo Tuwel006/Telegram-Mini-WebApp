@@ -19,49 +19,52 @@ import DailyReward from './Pages/DailyReward';
 function App() {
   const [loading, setLoading] = useState(true);
   const user = useContext(UserContext);
-  const postData = useCallback( async (telegramID, userName) => {
-    if(telegramID && userName && !user) {
+  const postData = useCallback(async (telegramID, userName) => {
+    if (telegramID && userName && !user) {
+      console.log("Making request with:", {
+        url: `${process.env.REACT_APP_SERVER_URL}initialize-user/${telegramID}/${userName}`,
+        data: { telegramID, userName },
+      });
       try {
-        await axios.get(`${process.env.REACT_APP_SERVER_URL}initialize-user/${telegramID}/${userName}`, {userName,telegramID});
+        const response = await axios.get(
+          `${process.env.REACT_APP_SERVER_URL}initialize-user/${telegramID}/${userName}`
+        );
+        console.log("Response from server:", response.data);
       } catch (error) {
-        console.log("ERROR in START TIMER: "+error);
+        console.error("Error during request:", error.message);
       }
     }
-  },[user])
+  }, [user]);
+  
 
 
-    useEffect(() => {
-      // Get URL parameters
+  useEffect(() => {
+    const initialize = async () => {
       const urlParams = new URLSearchParams(window.location.search);
       const telegramID = urlParams.get('telegramID') || "Test";
       const fn = urlParams.get('fn');
       const ln = urlParams.get('ln');
-      let userName='';
-      if(fn) {
-        userName+=fn;
-      }
-      if(ln){
-        userName+=" "+ln;
-      }
-      if(!fn&&!ln){
-        userName+="Your Name";
-      }
+      let userName = '';
+  
+      if (fn) userName += fn;
+      if (ln) userName += " " + ln;
+      if (!fn && !ln) userName += "Your Name";
+  
       const token = urlParams.get('token');
-      //setShowOverlay(checkIn.collect);
-      if(window.location.reload){
-        axios.post(`${process.env.REACT_APP_SERVER_URL}checkIn`, {telegramID, userName});
-      }
-
+  
       if (telegramID && userName) {
         // Save token in a cookie
         Cookies.set('authToken', telegramID, { expires: 45, sameSite: 'None', secure: true });
   
         // Save Telegram ID, username, and token to Firebase
-        postData(telegramID, userName, token);
+        await postData(telegramID, userName, token);
       }
       setLoading(false);
-      //console.log("Cookies: "+Cookies.get('authToken'));
-    }, [postData]);
+    };
+  
+    initialize();
+  }, [postData]);
+  
 
 
 

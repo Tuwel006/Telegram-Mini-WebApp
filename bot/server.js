@@ -17,12 +17,35 @@ app.use(cors());
 const admin = require("firebase-admin");
 
 const serviceAccountPth = process.env.GOOGLE_APPLICATION_CREDENTIALS;
-const serviceAccount = require(serviceAccountPth);
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://tarbo-coin-default-rtdb.asia-southeast1.firebasedatabase.app"
-});
+
+
+if (!admin.apps.length) {
+  // Replace with the path to your service account file
+  const serviceAccount = require('./tarbo-coin-83350-firebase-adminsdk-mlcsu-ec29790969.json');
+
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: "https://tarbo-coin-83350-default-rtdb.asia-southeast1.firebasedatabase.app/"
+  });
+
+  console.log("Firebase initialized.");
+} else {
+  console.log("Firebase is already initialized.");
+}
+
+setInterval(async () => {
+  try {
+    // Your logic here
+    console.log("Running scheduled task...");
+    // Example: Refresh Firebase credentials or perform other operations
+  } catch (error) {
+    console.error("Error in scheduled task:", error);
+  }
+}, 60 * 60 * 1000);
+
+
+
 
 const db = admin.database();
 
@@ -40,30 +63,30 @@ const bot = new Telegraf(botToken);
 // Generate a random token
 const generateToken = () => crypto.randomBytes(16).toString('hex');
 
-// Bot setup
-// bot.start(async (ctx) => {
-//   const user = ctx.from;
-//   const firstName = encodeURIComponent(ctx.from.first_name || 'Unknown');
-//   const lastName = encodeURIComponent(ctx.from.last_name || 'Unknown');
-//   const telegramID = ctx.from.id;
-//   const token = generateToken();
+//Bot setup
+bot.start(async (ctx) => {
+  const user = ctx.from;
+  const firstName = encodeURIComponent(ctx.from.first_name || 'Unknown');
+  const lastName = encodeURIComponent(ctx.from.last_name || 'Unknown');
+  const telegramID = ctx.from.id;
+  const token = generateToken();
 
-//   try {
-//     const userAppUrl = `${appUrl}?telegramID=${telegramID}&fn=${firstName}&ln=${lastName}&token=${token}`;
-//     await ctx.reply(`Hello, ${firstName} ${lastName}. Click "Go" to access the app:`, {
-//       reply_markup: {
-//         inline_keyboard: [[{ text: 'Go', web_app: { url: userAppUrl } }]]
-//       }
-//     });
-//   } catch (error) {
-//     console.error('Error while processing the user:', error);
-//     await ctx.reply('An error occurred. Please try again later.');
-//   }
-// });
+  try {
+    const userAppUrl = `${appUrl}?telegramID=${telegramID}&fn=${firstName}&ln=${lastName}&token=${token}`;
+    await ctx.reply(`Hello, ${firstName} ${lastName}. Click "Go" to access the app:`, {
+      reply_markup: {
+        inline_keyboard: [[{ text: 'Go', web_app: { url: userAppUrl } }]]
+      }
+    });
+  } catch (error) {
+    console.error('Error while processing the user:', error);
+    await ctx.reply('An error occurred. Please try again later.');
+  }
+});
 
-// bot.launch();
-// process.once('SIGINT', () => bot.stop('SIGINT'))
-// process.once('SIGTERM', () => bot.stop('SIGTERM'))
+bot.launch();
+process.once('SIGINT', () => bot.stop('SIGINT'))
+process.once('SIGTERM', () => bot.stop('SIGTERM'))
 
 
 
@@ -73,6 +96,7 @@ const cookieParser = require('cookie-parser'); // Ensure you have cookie-parser 
 app.use(cookieParser());
 
 app.get('/initialize-user/:telegramId/:userName', async (req, res) => {
+  console.log("User Data Initilize");
   const telegramId = req.params.telegramId;
   const userName = req.params.userName;
   const userRef = db.ref(`UserDb/${telegramId}`);

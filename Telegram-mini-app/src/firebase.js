@@ -2,14 +2,15 @@
 import { initializeApp } from 'firebase/app';
 import { getDatabase } from 'firebase/database';
 const firebaseConfig = {
-    apiKey: "AIzaSyCQ34LxT6g2vnbj2goEyh72ZGGjZ4bmLy4",
-    authDomain: "tarbo-coin.firebaseapp.com",
-    projectId: "tarbo-coin",
-    storageBucket: "tarbo-coin.appspot.com",
-    messagingSenderId: "84221442394",
-    appId: "1:84221442394:web:b60595ea3a8237d89a1b63",
-    databaseURL: "https://tarbo-coin-default-rtdb.asia-southeast1.firebasedatabase.app/",
-  };
+  apiKey: "AIzaSyAlf6cPn_8iQdqKQ6BUBMPQBBtYRG9vwYo",
+  authDomain: "tarbo-coin-83350.firebaseapp.com",
+  databaseURL: "https://tarbo-coin-83350-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "tarbo-coin-83350",
+  storageBucket: "tarbo-coin-83350.firebasestorage.app",
+  messagingSenderId: "102108533132",
+  appId: "1:102108533132:web:7f4356101231aa4ac106a9",
+  measurementId: "G-7ZHY2J6NPL"
+};
 // Your web app's Firebase configuration
 
 
