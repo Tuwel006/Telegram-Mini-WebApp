@@ -18,31 +18,27 @@ const admin = require("firebase-admin");
 
 const serviceAccountPth = process.env.GOOGLE_APPLICATION_CREDENTIALS;
 
+const serviceAccount = require(serviceAccountPth);
 
 
-if (!admin.apps.length) {
-  // Replace with the path to your service account file
-  const serviceAccount = require('./tarbo-coin-83350-firebase-adminsdk-mlcsu-ec29790969.json');
-
+try {
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
     databaseURL: "https://tarbo-coin-83350-default-rtdb.asia-southeast1.firebasedatabase.app/"
   });
-
-  console.log("Firebase initialized.");
-} else {
-  console.log("Firebase is already initialized.");
+} catch (error) {
+  if (error.code === 'invalid_grant') {
+    console.log('Invalid grant detected, reinitializing...');
+    admin.app().delete(); // Force delete the app and reinitialize
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+      databaseURL: "https://tarbo-coin-83350-default-rtdb.asia-southeast1.firebasedatabase.app/"
+    });
+  } else {
+    console.error('Error initializing Firebase:', error);
+  }
 }
 
-setInterval(async () => {
-  try {
-    // Your logic here
-    console.log("Running scheduled task...");
-    // Example: Refresh Firebase credentials or perform other operations
-  } catch (error) {
-    console.error("Error in scheduled task:", error);
-  }
-}, 60 * 60 * 1000);
 
 
 
